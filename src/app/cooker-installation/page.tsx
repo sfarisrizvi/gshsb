@@ -1,0 +1,87 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { CookingPot, ShieldCheck, CheckCircle2, PhoneCall, ArrowRight, AlertTriangle } from 'lucide-react';
+import FAQAccordion from '@/components/FAQAccordion';
+import EmergencyBanner from '@/components/EmergencyBanner';
+
+export default function CookerInstallationPage() {
+  const faqs = [
+    {
+      question: "Is it illegal to fit a gas cooker myself in Birmingham?",
+      answer: "Yes. Under UK Gas Safety (Installation and Use) Regulations 1998, any gas appliance connection must be legally performed by a registered Gas Safe engineer to prevent gas leaks and carbon monoxide danger."
+    },
+    {
+      question: "What is included in a standard gas cooker installation?",
+      answer: "Our certified installation includes disconnecting old appliances, inspecting gas supply hose & bayonet valve, fitting stability chains/brackets, testing pressure drop, and issuing a Gas Safe compliance certificate."
+    },
+    {
+      question: "Do you install dual-fuel range cookers and built-in hobs?",
+      answer: "Yes, we install freestanding gas cookers, dual fuel range cookers, built-in gas hobs, and gas ovens."
+    }
+  ];
+
+  return (
+    <div className="space-y-20 pb-16">
+      <section className="relative site-container pt-8">
+        <div>
+          <div className="glass-card-flame p-8 sm:p-14 relative overflow-hidden">
+            <div className="max-w-3xl space-y-6">
+              <div className="inline-flex items-center gap-2 bg-[#520701] border border-[#e46222]/40 px-3.5 py-1 rounded-full text-xs font-semibold text-[#e46222]">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>CERTIFIED GAS SAFE COOKER FITTING</span>
+              </div>
+              <h1 className="font-epic text-4xl sm:text-6xl font-black text-white">
+                GAS COOKER & HOB <br />
+                <span className="text-gradient-flame">INSTALLATION BIRMINGHAM</span>
+              </h1>
+              <p className="text-gray-300 text-base sm:text-lg leading-relaxed font-light">
+                Professional connection of freestanding gas cookers, gas hobs, and range cookers. Includes safety stability chains, leak tightness testing, and official Gas Safe certification.
+              </p>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link
+                  href="/contact-us"
+                  className="btn-emergency-pill text-sm flex items-center gap-2"
+                >
+                  <CookingPot className="w-4 h-4" />
+                  <span>Book Cooker Installation (£95 Fixed)</span>
+                </Link>
+                <a
+                  href="tel:01210000000"
+                  className="glass-card px-6 py-3 text-sm font-semibold text-white flex items-center gap-2 border border-white/10 hover:border-[#e46222]"
+                >
+                  <PhoneCall className="w-4 h-4 text-[#e46222]" />
+                  <span>Same-Day Availability</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="site-container">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="glass-card p-8 space-y-3">
+            <CheckCircle2 className="w-8 h-8 text-[#e46222]" />
+            <h3 className="font-epic text-lg font-bold text-white">Gas Tightness Testing</h3>
+            <p className="text-xs text-gray-400">Pre- and post-installation pressure drop check ensuring zero gas escape.</p>
+          </div>
+          <div className="glass-card p-8 space-y-3">
+            <CheckCircle2 className="w-8 h-8 text-[#e46222]" />
+            <h3 className="font-epic text-lg font-bold text-white">Stability Chains & Brackets</h3>
+            <p className="text-xs text-gray-400">Securing freestanding cookers to prevent dangerous tipping hazards.</p>
+          </div>
+          <div className="glass-card p-8 space-y-3">
+            <CheckCircle2 className="w-8 h-8 text-[#e46222]" />
+            <h3 className="font-epic text-lg font-bold text-white">Gas Safe Certificate</h3>
+            <p className="text-xs text-gray-400">Official digital documentation for landlords, home buyers, and insurance.</p>
+          </div>
+        </div>
+      </section>
+
+      <EmergencyBanner />
+      <FAQAccordion items={faqs} title="Cooker Installation FAQs" />
+    </div>
+  );
+}
