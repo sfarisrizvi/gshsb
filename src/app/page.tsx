@@ -45,6 +45,8 @@ const staggerContainer = {
   viewport: { once: true },
 };
 
+import FireSimulationSection from '@/components/FireSimulationSection';
+
 export default function HomePage() {
   const whatsappUrl = "https://wa.me/447900401035?text=Hi%20GSHSB%2C%20I%20need%20a%20quote%20for%20gas%2Fheating%2Fplumbing%20services.";
 
@@ -237,6 +239,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* REAL-TIME FIRE SIMULATION ENGINE */}
+      <FireSimulationSection />
 
       {/* EXPERIENCED ENGINEERS & BLACK & WHITE SHOWCASE SECTION */}
       <section className="site-container relative z-10">
