@@ -163,7 +163,17 @@ export default function Footer() {
           <div>
             © {new Date().getFullYear()} GSHSB (Gas Services & Heating Solutions Birmingham). All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('gshsb-open-cookie-settings'));
+                }
+              }}
+              className="text-gray-400 hover:text-[#e46222] transition-colors underline-offset-4 hover:underline cursor-pointer"
+            >
+              Cookie Preferences
+            </button>
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>Gas Safe Register ID #948123</span>
