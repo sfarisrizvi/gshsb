@@ -60,7 +60,7 @@ export interface WPCategory {
   taxonomy: string;
 }
 
-const WP_BASE_URL = process.env.WORDPRESS_API_URL || 'https://blog.gshsb.co.uk/wp-json/wp/v2';
+const WP_BASE_URL = process.env.WORDPRESS_API_URL || 'https://orange-donkey-314581.hostingersite.com/wp-json/wp/v2';
 
 // ---------------------------------------------------------------------------
 // High quality fallback articles during DNS propagation / server cold starts
@@ -473,7 +473,17 @@ export async function getPosts(params?: {
     endpoint += `&search=${encodeURIComponent(search)}`;
   }
 
-  let posts = await fetchWP<WPPost[]>(endpoint, FALLBACK_POSTS);
+  const livePosts = await fetchWP<WPPost[]>(endpoint, []);
+
+  // Merge live WordPress posts with sample heating articles
+  let posts: WPPost[] = [];
+  if (livePosts && livePosts.length > 0) {
+    const liveSlugs = new Set(livePosts.map((p) => p.slug));
+    const nonDuplicateFallbacks = FALLBACK_POSTS.filter((p) => !liveSlugs.has(p.slug));
+    posts = [...livePosts, ...nonDuplicateFallbacks];
+  } else {
+    posts = [...FALLBACK_POSTS];
+  }
 
   if (categorySlug && categorySlug !== 'all') {
     posts = posts.filter((post) => {
@@ -509,8 +519,26 @@ export async function getPostBySlug(slug: string): Promise<WPPost | null> {
 }
 
 export async function getCategories(): Promise<WPCategory[]> {
-  const categories = await fetchWP<WPCategory[]>('/categories?per_page=100', FALLBACK_CATEGORIES);
-  return categories.filter((c) => c.name.toLowerCase() !== 'uncategorized');
+  const liveCategories = await fetchWP<WPCategory[]>('/categories?per_page=100', []);
+
+  const combined: WPCategory[] = [];
+  const seenSlugs = new Set<string>();
+
+  for (const cat of liveCategories) {
+    if (cat.name.toLowerCase() !== 'uncategorized' || liveCategories.length === 1) {
+      combined.push(cat);
+      seenSlugs.add(cat.slug);
+    }
+  }
+
+  for (const fb of FALLBACK_CATEGORIES) {
+    if (!seenSlugs.has(fb.slug)) {
+      combined.push(fb);
+      seenSlugs.add(fb.slug);
+    }
+  }
+
+  return combined;
 }
 
 export async function getRelatedPosts(currentSlug: string, categoryId?: number): Promise<WPPost[]> {
