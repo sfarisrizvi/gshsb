@@ -1,24 +1,82 @@
-'use client';
-
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Flame, ShieldCheck, CheckCircle2, PhoneCall, ArrowRight, BookOpen, Clock } from 'lucide-react';
+import { BookOpen, Clock } from 'lucide-react';
 import FAQAccordion from '@/components/FAQAccordion';
 
+export const metadata: Metadata = {
+  title: 'New Boiler Installation Birmingham Guide (2025/2026 Homeowner Advice)',
+  description: 'Complete Birmingham guide to new boiler installations. Combi vs system boilers, costs, power flushing, energy efficiency, and Gas Safe warranty protection.',
+  alternates: {
+    canonical: '/new-boiler-installation-birmingham-guide',
+  },
+  openGraph: {
+    title: 'New Boiler Installation Birmingham Guide | GSHSB',
+    description: 'Expert advice on selecting, sizing, and installing a new A-rated energy efficient boiler in Birmingham.',
+    url: '/new-boiler-installation-birmingham-guide',
+    type: 'article',
+  },
+};
+
+const guideFaqs = [
+  {
+    question: "Which boiler is best for a 3-bedroom house in Birmingham?",
+    answer: "A 28kW to 32kW A-rated combi boiler (like the Worcester Bosch Greenstar 4000 or Baxi 800) is ideal for most 3-bedroom Birmingham homes with 1 bathroom."
+  },
+  {
+    question: "Do I need to notify my local council when installing a boiler?",
+    answer: "No. Because GSHSB is Gas Safe registered, we self-certify the installation with Gas Safe, who directly inform Building Control and issue your CP12/Building Regulations Compliance Certificate."
+  }
+];
+
 export default function NewBoilerGuidePage() {
-  const guideFaqs = [
-    {
-      question: "Which boiler is best for a 3-bedroom house in Birmingham?",
-      answer: "A 28kW to 32kW A-rated combi boiler (like the Worcester Bosch Greenstar 4000 or Baxi 800) is ideal for most 3-bedroom Birmingham homes with 1 bathroom."
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'New Boiler Installation Birmingham Guide (2025/2026 Advice)',
+    description: 'A comprehensive homeowner guide to new boiler installations, sizing, efficiency, and Gas Safe standards in Birmingham.',
+    author: {
+      '@type': 'Organization',
+      name: 'GSHSB Birmingham Heating Engineers',
     },
-    {
-      question: "Do I need to notify my local council when installing a boiler?",
-      answer: "No. Because GSHSB is Gas Safe registered, we self-certify the installation with Gas Safe, who directly inform Building Control and issue your CP12/Building Regulations Compliance Certificate."
-    }
-  ];
+    publisher: {
+      '@type': 'Organization',
+      name: 'GSHSB',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://gshsb.co.uk/logo%20for%20dark%20theme.svg',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': 'https://gshsb.co.uk/new-boiler-installation-birmingham-guide',
+    },
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: guideFaqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
 
   return (
     <div className="space-y-16 pb-16 site-container">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       {/* Header */}
       <div className="space-y-6 pt-6">
         <div className="inline-flex items-center gap-2 bg-[#520701] border border-[#e46222]/40 px-3.5 py-1 rounded-full text-xs font-semibold text-[#e46222]">
@@ -47,11 +105,11 @@ export default function NewBoilerGuidePage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <div className="bg-white/[0.03] p-4 rounded-xl border border-white/5 space-y-2">
-              <h4 className="font-bold text-white text-sm">Combination (Combi) Boilers</h4>
+              <h3 className="font-bold text-white text-sm">Combination (Combi) Boilers</h3>
               <p className="text-xs text-gray-400">Heats water directly from the mains on demand. Eliminates cold water tanks and hot water cylinders. Ideal for 1-2 bathroom homes.</p>
             </div>
             <div className="bg-white/[0.03] p-4 rounded-xl border border-white/5 space-y-2">
-              <h4 className="font-bold text-white text-sm">System & Conventional Boilers</h4>
+              <h3 className="font-bold text-white text-sm">System & Conventional Boilers</h3>
               <p className="text-xs text-gray-400">Requires a hot water cylinder. Perfect for larger properties with multiple bathrooms running showers simultaneously.</p>
             </div>
           </div>

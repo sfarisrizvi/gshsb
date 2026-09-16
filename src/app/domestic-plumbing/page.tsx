@@ -1,29 +1,79 @@
-'use client';
-
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Droplets, ShieldCheck, PhoneCall, CheckCircle, Clock, Wrench, AlertTriangle, ArrowRight } from 'lucide-react';
 import FAQAccordion from '@/components/FAQAccordion';
 import EmergencyBanner from '@/components/EmergencyBanner';
 
+export const metadata: Metadata = {
+  title: '24/7 Domestic Plumbing & Emergency Leak Repairs Birmingham',
+  description: 'Fast response emergency domestic plumbers in Birmingham. Burst pipes, leaking taps, toilet repairs, stopcocks & blocked drains fixed 24/7 by insured experts.',
+  alternates: {
+    canonical: '/domestic-plumbing',
+  },
+  openGraph: {
+    title: 'Emergency Domestic Plumbing Repairs Birmingham | GSHSB',
+    description: 'Rapid 24/7 domestic plumbing diagnostics and emergency burst pipe repairs across all Birmingham postcodes.',
+    url: '/domestic-plumbing',
+  },
+};
+
+const faqs = [
+  {
+    question: "What domestic plumbing emergencies do you handle in Birmingham?",
+    answer: "We handle burst pipes, severe water leaks, overflowing toilets, blocked mains drains, failed stopcocks, low water pressure emergencies, and leaking hot water cylinders across all Birmingham postcodes 24/7."
+  },
+  {
+    question: "Do you charge a call-out fee for plumbing inspection?",
+    answer: "We provide upfront transparent pricing. For standard diagnostic visits during regular hours, we provide zero hidden fees and a fixed quote before starting work."
+  },
+  {
+    question: "Are your plumbers qualified and insured?",
+    answer: "Yes, all GSHSB plumbing technicians carry full public liability insurance (£5 million) and City & Guilds level 3 plumbing credentials."
+  }
+];
+
 export default function DomesticPlumbingPage() {
-  const faqs = [
-    {
-      question: "What domestic plumbing emergencies do you handle in Birmingham?",
-      answer: "We handle burst pipes, severe water leaks, overflowing toilets, blocked mains drains, failed stopcocks, low water pressure emergencies, and leaking hot water cylinders across all Birmingham postcodes 24/7."
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+
+  const serviceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Domestic Plumbing Repairs & Installation Birmingham',
+    provider: {
+      '@type': 'HVACBusiness',
+      name: 'GSHSB Birmingham',
     },
-    {
-      question: "Do you charge a call-out fee for plumbing inspection?",
-      answer: "We provide upfront transparent pricing. For standard diagnostic visits during regular hours, we provide zero hidden fees and a fixed quote before starting work."
+    areaServed: {
+      '@type': 'City',
+      name: 'Birmingham',
     },
-    {
-      question: "Are your plumbers qualified and insured?",
-      answer: "Yes, all GSHSB plumbing technicians carry full public liability insurance (£5 million) and City & Guilds level 3 plumbing credentials."
-    }
-  ];
+    description: 'Emergency burst pipe repairs, tap installations, toilet maintenance, and stopcock replacements across Birmingham.',
+  };
 
   return (
     <div className="space-y-20 pb-16">
+      {/* Structured Data for SEO Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="relative site-container pt-8">
         <div>
@@ -42,7 +92,7 @@ export default function DomesticPlumbingPage() {
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <a
-                  href="tel:01210000000"
+                  href="tel:07900401035"
                   className="btn-emergency-pill text-sm flex items-center gap-2"
                 >
                   <PhoneCall className="w-4 h-4 animate-bounce" />
@@ -68,7 +118,7 @@ export default function DomesticPlumbingPage() {
             <div className="w-12 h-12 rounded-24 bg-[#520701] border border-[#e46222] flex items-center justify-center text-[#e46222]">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <h3 className="font-epic text-xl font-bold text-white">Emergency Burst Pipe Repair</h3>
+            <h2 className="font-epic text-xl font-bold text-white">Emergency Burst Pipe Repair</h2>
             <p className="text-xs text-gray-400 leading-relaxed">
               Fast isolation of burst mains pipes, frozen pipe thawing, and structural ceiling leak prevention in 45 minutes.
             </p>
@@ -78,7 +128,7 @@ export default function DomesticPlumbingPage() {
             <div className="w-12 h-12 rounded-24 bg-[#520701] border border-[#e46222] flex items-center justify-center text-[#e46222]">
               <Wrench className="w-6 h-6" />
             </div>
-            <h3 className="font-epic text-xl font-bold text-white">Tap, Sink & Toilet Maintenance</h3>
+            <h2 className="font-epic text-xl font-bold text-white">Tap, Sink & Toilet Maintenance</h2>
             <p className="text-xs text-gray-400 leading-relaxed">
               Replacing dripping mixer taps, ball valves, faulty flush mechanisms, ceramic discs, and kitchen waste disposals.
             </p>
@@ -88,7 +138,7 @@ export default function DomesticPlumbingPage() {
             <div className="w-12 h-12 rounded-24 bg-[#520701] border border-[#e46222] flex items-center justify-center text-[#e46222]">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="font-epic text-xl font-bold text-white">Stopcocks & Water Pressure</h3>
+            <h2 className="font-epic text-xl font-bold text-white">Stopcocks & Water Pressure</h2>
             <p className="text-xs text-gray-400 leading-relaxed">
               Upgrading stuck brass stopcocks to Surestop electronic switches and installing brass booster pumps for low water pressure homes.
             </p>
