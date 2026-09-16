@@ -2,215 +2,135 @@
 
 import React, { useEffect, useRef } from 'react';
 
-interface Particle {
+interface CursorSpark {
   x: number;
   y: number;
   vx: number;
   vy: number;
   size: number;
-  life: number;
-  maxLife: number;
-  color: string;
   alpha: number;
-  decay: number;
+  color: string;
 }
 
 export default function FireEmbersCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    const particles: Particle[] = [];
-    const colors = ['#ffffff', '#ff9e42', '#e46222', '#b83f09', '#520701'];
-
-    // Mouse Tracking for Cursor Flame Trail
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX;
-      const y = e.clientY;
-      // Spawn subtle flame trail sparks at cursor
-      for (let i = 0; i < 3; i++) {
-        particles.push({
-          x: x + (Math.random() - 0.5) * 8,
-          y: y + (Math.random() - 0.5) * 8,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: -(Math.random() * 2 + 1),
-          size: Math.random() * 6 + 4,
-          life: 0,
-          maxLife: Math.random() * 30 + 20,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: 0.9,
-          decay: Math.random() * 0.03 + 0.02,
-        });
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const x = e.touches[0].clientX;
-        const y = e.touches[0].clientY;
-        for (let i = 0; i < 3; i++) {
-          particles.push({
-            x: x + (Math.random() - 0.5) * 8,
-            y: y + (Math.random() - 0.5) * 8,
-            vx: (Math.random() - 0.5) * 1.2,
-            vy: -(Math.random() * 2 + 1),
-            size: Math.random() * 6 + 4,
-            life: 0,
-            maxLife: Math.random() * 30 + 20,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: 0.9,
-            decay: Math.random() * 0.03 + 0.02,
-          });
-        }
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchmove', handleTouchMove);
-
-    // Sequential Periodic Flame Plumes rising from bottom
-    let lastPlumeTime = Date.now();
-
-    const spawnSequentialFlamePlume = () => {
-      const plumeX = Math.random() * (width - 100) + 50;
-      const count = Math.floor(Math.random() * 15 + 15);
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: plumeX + (Math.random() - 0.5) * 40,
-          y: height + Math.random() * 20,
-          vx: (Math.random() - 0.5) * 1.8,
-          vy: -(Math.random() * 4 + 2.5),
-          size: Math.random() * 12 + 8,
-          life: 0,
-          maxLife: Math.random() * 60 + 40,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: 0.8,
-          decay: Math.random() * 0.015 + 0.01,
-        });
-      }
-    };
-
-    // Ambient floating background embers
-    const ambientEmbers: Particle[] = [];
-    for (let i = 0; i < 35; i++) {
-      ambientEmbers.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: -(Math.random() * 1.2 + 0.3),
-        size: Math.random() * 3 + 1,
-        life: 0,
-        maxLife: Math.random() * 180 + 100,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: Math.random() * 0.6 + 0.2,
-        decay: Math.random() * 0.005 + 0.002,
-      });
+    // Only run on desktop/pointing devices to save mobile battery
+    if (typeof window === 'undefined' || window.matchMedia('(pointer: coarse)').matches) {
+      return;
     }
 
-    // Animation Render Loop
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+    if (!ctx) return;
 
-      const now = Date.now();
-      // Periodically trigger a soft rising flame plume every 2.5 seconds
-      if (now - lastPlumeTime > 2500) {
-        spawnSequentialFlamePlume();
-        lastPlumeTime = now;
+    let animId: number | null = null;
+    let isRunning = false;
+    let lastX = 0;
+    let lastY = 0;
+    let lastTime = 0;
+
+    // Cap resolution at 1x to avoid retina canvas performance drop
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    const sparks: CursorSpark[] = [];
+    const colors = ['#ffffff', '#ffcf66', '#ff8c33', '#e46222', '#b33000'];
+
+    const spawnSparks = (x: number, y: number) => {
+      // Spawn only 2-3 light sparks per move
+      const count = 2;
+      for (let i = 0; i < count; i++) {
+        if (sparks.length > 30) {
+          sparks.shift(); // keep particle count capped
+        }
+        sparks.push({
+          x: x + (Math.random() - 0.5) * 6,
+          y: y + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 1.0,
+          vy: -(Math.random() * 1.8 + 0.8), // rise upward
+          size: Math.random() * 4 + 2.5,
+          alpha: 0.95,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
       }
 
-      // Draw ambient background embers
-      for (let i = 0; i < ambientEmbers.length; i++) {
-        const e = ambientEmbers[i];
-        e.life++;
-        e.y += e.vy;
-        e.x += e.vx + Math.sin(e.life * 0.04) * 0.3;
-        e.alpha -= e.decay;
+      // Wake up the render loop if sleeping
+      if (!isRunning) {
+        isRunning = true;
+        animId = requestAnimationFrame(loop);
+      }
+    };
 
-        if (e.alpha <= 0 || e.y < -10 || e.life >= e.maxLife) {
-          ambientEmbers[i] = {
-            x: Math.random() * width,
-            y: height + 10,
-            vx: (Math.random() - 0.5) * 0.6,
-            vy: -(Math.random() * 1.2 + 0.3),
-            size: Math.random() * 3 + 1,
-            life: 0,
-            maxLife: Math.random() * 180 + 100,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: Math.random() * 0.6 + 0.2,
-            decay: Math.random() * 0.005 + 0.002,
-          };
-        } else {
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
-          ctx.fillStyle = e.color;
-          ctx.globalAlpha = Math.max(0, e.alpha);
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = e.color;
-          ctx.fill();
-          ctx.restore();
+    const onMouseMove = (e: MouseEvent) => {
+      const now = performance.now();
+      // Throttle spawn to max ~60 times/sec to prevent event flood
+      if (now - lastTime > 16) {
+        lastTime = now;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        // Only spawn if mouse actually moved more than 2px
+        if (dx * dx + dy * dy > 4) {
+          lastX = e.clientX;
+          lastY = e.clientY;
+          spawnSparks(e.clientX, e.clientY);
         }
       }
+    };
 
-      // Draw active cursor flame trail & sequential flame particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.life++;
-        p.alpha -= p.decay;
-        p.size *= 0.96; // gracefully shrink
-        p.x += p.vx + Math.sin(p.life * 0.1) * 0.5;
-        p.y += p.vy;
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
 
-        if (p.alpha <= 0 || p.size <= 0.5 || p.life >= p.maxLife) {
-          particles.splice(i, 1);
+    const loop = () => {
+      if (sparks.length === 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        isRunning = false;
+        animId = null;
+        return; // Sleep until next mouse move! Zero CPU usage when idle.
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.size *= 0.94; // shrink smoothly
+        s.alpha -= 0.04; // fade quickly
+
+        if (s.alpha <= 0.05 || s.size <= 0.5) {
+          sparks.splice(i, 1);
           continue;
         }
 
-        ctx.save();
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.shadowBlur = p.size * 2;
-        ctx.shadowColor = '#e46222';
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      ctx.globalCompositeOperation = 'source-over';
+      animId = requestAnimationFrame(loop);
     };
 
-    render();
-
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchmove', handleTouchMove);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', onMouseMove);
+      if (animId) cancelAnimationFrame(animId);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-30"
+      className="fixed inset-0 pointer-events-none z-50"
       aria-hidden="true"
     />
   );
