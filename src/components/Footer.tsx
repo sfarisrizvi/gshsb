@@ -106,6 +106,12 @@ export default function Footer() {
                   Cooker Setup Process
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="hover:text-[#e46222] transition-colors flex items-center gap-1.5 text-white font-medium">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#e46222]" />
+                  Heating & Gas Blog
+                </Link>
+              </li>
             </ul>
           </div>
 

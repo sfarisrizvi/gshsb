@@ -157,6 +157,13 @@ export default function Navbar() {
             </div>
 
             <Link
+              href="/blog"
+              className="text-gray-300 hover:text-white transition-colors relative py-1 hover:after:w-full after:w-0 after:h-[2px] after:bg-[#e46222] after:absolute after:bottom-0 after:left-0 after:transition-all"
+            >
+              Blog
+            </Link>
+
+            <Link
               href="/contact-us"
               className="text-gray-300 hover:text-white transition-colors relative py-1 hover:after:w-full after:w-0 after:h-[2px] after:bg-[#e46222] after:absolute after:bottom-0 after:left-0 after:transition-all"
             >
@@ -261,6 +268,14 @@ export default function Navbar() {
                 Cooker Guide
               </Link>
             </div>
+
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-200 hover:text-[#e46222] text-sm font-semibold"
+            >
+              Blog
+            </Link>
 
             <Link
               href="/contact-us"

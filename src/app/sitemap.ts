@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next';
 import { headers } from 'next/headers';
+import { getPosts } from '@/lib/wordpress';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   if (!baseUrl) {
@@ -26,7 +27,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const lastModified = new Date();
 
-  const routes = [
+  // Fetch WordPress blog posts for dynamic sitemap inclusion
+  let blogPostRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await getPosts({ perPage: 100 });
+    blogPostRoutes = posts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.modified ? new Date(post.modified) : lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (e) {
+    // If WP API is unreachable during build, proceed with static routes
+  }
+
+  const routes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
       lastModified,
@@ -83,6 +98,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     },
+    // Blog Hub
+    {
+      url: `${baseUrl}/blog`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
     // Contact & Booking
     {
       url: `${baseUrl}/contact-us`,
@@ -90,6 +112,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly' as const,
       priority: 0.8,
     },
+    ...blogPostRoutes,
   ];
 
   return routes;
